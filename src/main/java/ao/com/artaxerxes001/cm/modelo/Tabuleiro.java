@@ -1,5 +1,7 @@
 package ao.com.artaxerxes001.cm.modelo;
 
+import ao.com.artaxerxes001.cm.exception.ExplosaoException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -22,16 +24,17 @@ public class Tabuleiro {
     }
 
     public void abrir(int linha, int coluna) {
-campos.parallelStream()
-        .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
-        .findFirst()
-        .ifPresent(c -> c.abrir());
+        try {
+            campos.parallelStream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(c -> c.abrir());
+
+        } catch (ExplosaoException e) {
+            campos.forEach(c -> c.setAberto(true));
+            throw e;
+        }
     }
+
     public void alternarMarcacao(int linha, int coluna) {
-campos.parallelStream()
-        .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
-        .findFirst()
-        .ifPresent(c -> c.alternarMarcacao());
+        campos.parallelStream().filter(c -> c.getLinha() == linha && c.getColuna() == coluna).findFirst().ifPresent(c -> c.alternarMarcacao());
     }
 
     private void gerarCampos() {
@@ -43,10 +46,8 @@ campos.parallelStream()
     }
 
     private void associarVizinhos() {
-        for (Campo c1 :
-                campos) {
-            for (Campo c2 :
-                    campos) {
+        for (Campo c1 : campos) {
+            for (Campo c2 : campos) {
                 c1.adicionarVizinho(c2);
             }
         }
@@ -56,8 +57,8 @@ campos.parallelStream()
         long minasArmadas = 0;
         Predicate<Campo> minado = c -> c.isMinado();
         do {
-            minasArmadas = campos.stream().filter(minado).count();
             int aleatorio = (int) (Math.random() * campos.size());
+            minasArmadas = campos.stream().filter(minado).count();
             campos.get(aleatorio).minar();
         } while (minasArmadas < minas);
     }
@@ -73,9 +74,27 @@ campos.parallelStream()
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
+//        espaço inicial para os indeces das colunas
+        sb.append("    ");
+        for (int coluna = 0; coluna < colunas; coluna++) {
+            sb.append(" ");
+            sb.append(coluna+" ");
+            sb.append(" ");
 
+        }
+        sb.append("\n");
+        sb.append("    ");
+        for (int coluna = 0; coluna < colunas; coluna++) {
+            sb.append(" ");
+            sb.append("_ ");
+            sb.append(" ");
+
+        }
+        sb.append("\n");
         int i = 0;
         for (int linha = 0; linha < linhas; linha++) {
+            sb.append(linha+" |");
+            sb.append(" ");
             for (int coluna = 0; coluna < colunas; coluna++) {
                 sb.append(" ");
                 sb.append(campos.get(i));

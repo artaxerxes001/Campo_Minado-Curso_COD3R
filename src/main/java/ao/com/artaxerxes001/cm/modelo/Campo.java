@@ -80,6 +80,10 @@ public class Campo {
         return aberto;
     }
 
+     void setAberto(boolean aberto) {
+        this.aberto = aberto;
+    }
+
     public boolean isFechado() {
         return !aberto;
     }
@@ -114,15 +118,15 @@ public class Campo {
 
     public String toString() {
         if (marcado) {
-            return "x";
+            return "\uD83D\uDEA9";
         } else if (aberto && minado) {
-            return "*";
+            return "\uD83D\uDCA3";
         }else if (aberto && minasNaVisinhanca() > 0) {
-            return Long.toString(minasNaVisinhanca());
+            return (Long.toString(minasNaVisinhanca())) + " ";
         } else if (aberto) {
             return " ";
         }else{
-           return "?";
+           return "⬜ ";
         }
     }
 }
